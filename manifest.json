@@ -26,9 +26,14 @@
             "http://www.messenger.com/*",
             "https://www.messenger.com/*"
         ],
-        "css": [],
+        "css": [
+            "content_scripts/materialize.min.css"
+        ],
         "js": [
             "content_scripts/jquery.min.js",
+            "content_scripts/materialize.min.js",
+            "content_scripts/fabric.min.js",
+            "content_scripts/socket.io.min.js",
             "content_scripts/messenger.js"
         ]
     }]
