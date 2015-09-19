@@ -14,7 +14,7 @@ var generateForm = function(message) {
 	return form;
 };
 
-var renderForm = function() {
+var checkMessages = function() {
 	$('.webMessengerMessageGroup').each(function(index, messageGroup) {
 		$(messageGroup).find('p').each(function(index, element) {
 			var actualMessage = $(element).text();
@@ -34,18 +34,19 @@ var renderElement = function(actualMessage, element) {
 		$.get(searchURL, function(data) {
 			if (!data.data[0]) {
 				$(element).parent().parent().empty().append('<span><h1>Sorry, we couldn\'t find a match on Giphy for that.</h1></span>').hide().fadeIn();
+			} else {
+				var embed_url = data.data[0].embed_url;
+				$(element).parent().parent().empty().append('<span><iframe src="' + embed_url + '"></iframe></span>').hide().fadeIn();
 			}
-			var embed_url = data.data[0].embed_url;
-			$(element).parent().parent().empty().append('<span><iframe src="' + embed_url + '"></iframe></span>').hide().fadeIn();
 		});
 	}
 };
 
-$(document).on('click', renderForm);
+$(document).on('click', checkMessages);
 $(document).on('keyup', function(e) {
 	if (e.keyCode === 13) {
 		setTimeout(function() {
-			renderForm();
+			checkMessages();
 		}, 200);
 	}
 });
