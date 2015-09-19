@@ -37,7 +37,7 @@ var checkMessages = function() {
 		var actualMessage = $(message).text();
 		if (actualMessage.indexOf('/giphy') > -1) {
 			var search_term_string = actualMessage.substring(7).replace(/ /g, '+');
-			$.get('https://fb-powerchat.azurewebsites.net/giphy?keyword=' + search_term_string, function(data) {
+			$.get('https://fbpowerchat.cloudapp.net/giphy?keyword=' + search_term_string, function(data) {
 				var data = JSON.parse(data);
 				if (data.result == 'failure') {
 					$(message).empty().html('<span><strong>Sorry</strong> :( We couldn\'t find a match on Giphy for that.</span>').hide().fadeIn();
@@ -63,7 +63,7 @@ var checkMessages = function() {
 		}
 		if (actualMessage.indexOf('/youtube-list') > -1) {
 			var search_term_string = actualMessage.substring(14).replace(/ /g, '+');
-			$.get('https://fb-powerchat.azurewebsites.net/youtube/list?keyword=' + search_term_string, function(data) {
+			$.get('https://fbpowerchat.cloudapp.net/youtube/list?keyword=' + search_term_string, function(data) {
 				var data = JSON.parse(data);
 				if (data.result == 'failure') {
 					$(message).empty().html('<span><strong>Sorry</strong> :( We couldn\'t find a match on YouTube for that.</span>').hide().fadeIn();
@@ -87,7 +87,7 @@ var checkMessages = function() {
 			});
 		} else if (actualMessage.indexOf('/youtube') > -1) {
 			var search_term_string = actualMessage.substring(9).replace(/ /g, '+');
-			$.get('https://fb-powerchat.azurewebsites.net/youtube?keyword=' + search_term_string, function(data) {
+			$.get('https://fbpowerchat.cloudapp.net/youtube?keyword=' + search_term_string, function(data) {
 				var data = JSON.parse(data);
 				if (data.result == 'failure') {
 					$(element).parent().parent().empty().append('<span><p>Sorry, we couldn\'t find a match on YouTube for that.</p></span>').hide().fadeIn();
@@ -106,6 +106,11 @@ var checkMessages = function() {
 	});
 };
 
+var init_microphone = function() {
+	$('._4rv4').prepend('<li title="Input messages via voice"><div style="width: 30px; height: 30px;" id="microphone"></div></li>');
+	// DO NOT EDIT HERE
+};
+
 var init_canvas = function() {
 	//$('._4rv4').css('width', '196px');
 	$('._4rv4').prepend('<li title="Work on a canvas"><a><img width="30" height="30" id="canvas_trigger" /></a></li>');
@@ -114,7 +119,7 @@ var init_canvas = function() {
 	});
 	$('#canvas_trigger').on('click', function(e) {
 		$('.modal-content').empty().append('<h1>Interactive Canvas</h1><canvas id="drawing-canvas" style="border: 1px solid rgb(170, 170, 170); position: absolute; left: 0px; top: 0px; -webkit-user-select: none;" width="650" height="420"></canvas>');
-		$('.modal-content').append('<br /><div id="canvas-controls">Mode: <select id="drawing-mode-selector"><option>Pencil</option><option>Circle</option><option>Spray</option></select>&nbsp;Brush Color: <input id="drawing-color" type="color" value="#005e7a">&nbsp;<a id="clear-canvas">Clear Canvas</a></div>');
+		$('.modal-content').append('<br /><div id="canvas-controls"><p>Brush Color: </p><input id="drawing-color" type="color" value="#005e7a">&nbsp;<a id="clear-canvas">Clear Canvas</a></div>');
 		var canvas = new fabric.Canvas('drawing-canvas', {
 			isDrawingMode: true
 		});
@@ -134,42 +139,27 @@ var init_canvas = function() {
 			canvas.clear()
 		};
 
-		document.getElementById('drawing-mode-selector').onchange = function() {
-			canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
-			if (canvas.freeDrawingBrush) {
-				canvas.freeDrawingBrush.color = drawingColorEl.value;
-				canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
-				canvas.freeDrawingBrush.shadowBlur = parseInt(drawingShadowWidth.value, 10) || 0;
-			}
-		};
-
 		drawingColorEl.onchange = function() {
 			canvas.freeDrawingBrush.color = this.value;
 		};
-		// drawingShadowColorEl.onchange = function() {
-		// 	canvas.freeDrawingBrush.shadowColor = this.value;
-		// };
-		// drawingLineWidthEl.onchange = function() {
-		// 	canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
-		// 	this.previousSibling.innerHTML = this.value;
-		// };
-		// drawingShadowWidth.onchange = function() {
-		// 	canvas.freeDrawingBrush.shadowBlur = parseInt(this.value, 10) || 0;
-		// 	this.previousSibling.innerHTML = this.value;
-		// };
-		// drawingShadowOffset.onchange = function() {
-		// 	canvas.freeDrawingBrush.shadowOffsetX =
-		// 		canvas.freeDrawingBrush.shadowOffsetY = parseInt(this.value, 10) || 0;
-		// 	this.previousSibling.innerHTML = this.value;
-		// };
 
 		if (canvas.freeDrawingBrush) {
-			console.log(drawingColorEl.value);
 			canvas.freeDrawingBrush.color = drawingColorEl.value;
 			canvas.freeDrawingBrush.width = 5;
 			canvas.freeDrawingBrush.shadowBlur = 0;
 		}
 		$('#modal-ce').openModal();
+		canvas.on('after:render', function(e) {
+			var canvas_JSON = canvas.toJSON();
+			var tokens = document.URL.split('/');
+			window.canvas_socket.emit('change', {
+				room: window.roomMap[tokens[tokens.length - 1]],
+				canvas: canvas_JSON
+			});
+		});
+		window.canvas_socket.on('draw', function(data) {
+			console.log(data);
+		});
 	});
 }
 
@@ -180,9 +170,19 @@ var render_player = function(elem, link) {
 console.log('Initializing the awesome.');
 window.num_messages = $('._1t_p').length;
 setTimeout(function() {
+	checkMessages();
 	$('body').append(modal);
 	init_canvas();
+	init_microphone();
+	var tokens = document.URL.split('/');
+	window.canvas_socket.emit('join', {
+		room: window.roomMap[tokens[tokens - 1]]
+	});
 }, 1000);
+window.canvas_socket = io('https://fbpowerchat.cloudapp.net:5000');
+window.roomMap = {};
+var tokens = document.URL.split('/');
+window.roomMap[tokens[tokens.length - 1]] = generateRoomID();
 
 setInterval(function() {
 	var num_messages = $('._1t_p').length;
