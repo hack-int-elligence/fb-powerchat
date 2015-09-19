@@ -1,0 +1,27 @@
+{
+    "manifest_version": 2,
+    "name": "Hack The North submission",
+    "description": "Supercharges facebook messenger",
+    "version": "1.0",
+    "background": {
+        "scripts": [ "background.js" ],
+        "persistent": false
+    },
+    "permissions": [
+        "declarativeContent",
+        "activeTab"
+    ],
+    "content_scripts": [
+    	{
+    		"matches": [
+    			"http://www.facebook.com/messages/*",
+                "https://www.facebook.com/messages/*"
+    		],
+    		"css": [],
+    		"js": [
+    			"content_scripts/jquery.min.js",
+    			"content_scripts/main.js"
+    		]
+    	}
+    ]
+}
