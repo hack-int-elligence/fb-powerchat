@@ -27,7 +27,7 @@
             "https://www.messenger.com/*"
         ],
         "css": [
-            "content_scripts/materialize.min.css",
+            "content_scripts/materialize.min.css"
         ],
         "js": [
             "content_scripts/jquery.min.js",
