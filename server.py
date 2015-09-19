@@ -2,7 +2,6 @@ from flask import Flask
 from flask import request
 from flask_sockets import Sockets
 
-import giphy
 import urllib
 import json
 
@@ -28,9 +27,9 @@ def giphy():
 		json_list = json.loads(data)['data']
 		print(json_list)
 		if len(json_list) == 0:
-			return "{'type': 'giphy', 'data':'No data', 'result':'Failure'}"
+			return "{'type': 'giphy', 'data':'no data', 'result':'failure'}"
 		else:
-			return "{'type': 'giphy', 'data':json_list[0]['embed_url'], 'result':'Success'}"
+			return "{'type': 'giphy', 'data':" + json_list[0]['embed_url'] + ", 'result':'success'}"
 
 if __name__ == "__main__":
     app.run()
