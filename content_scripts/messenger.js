@@ -369,7 +369,7 @@ var init_canvas = function() {
 var init_streamer = function() {
 	$('._4rv4').prepend('<li title="Uploaed video files to stream!"><a><img style="width: 30px; height: 30px;" id="start_stream" src="' + movie_icon + '" "></a></li>');
 	$('#start_stream').on('click', function() {
-		$('.modal-content').empty().append('<h1>Select a video file to stream!</h1><input id="file-upload" type="file" accept="video/*"></input>');
+		$('.modal-content').empty().append('<h1>Select a video file to stream!</h1><input id="file-upload" type="file" accept="video/*"></input><br /><h2 style="text-align: center;">Alternatively, you can wait for somebody to share a video with you!</h2>');
 		$('#modal-ce').openModal();
 	});
 	//var mediaSource = new MediaSource();
