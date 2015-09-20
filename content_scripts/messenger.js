@@ -8,6 +8,23 @@ var movie_icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADD
 
 var host = 'https://fbmessengernode.azurewebsites.net';
 
+window.twttr = (function(d, s, id) {
+	var js, fjs = d.getElementsByTagName(s)[0],
+		t = window.twttr || {};
+	if (d.getElementById(id)) return t;
+	js = d.createElement(s);
+	js.id = id;
+	js.src = "https://platform.twitter.com/widgets.js";
+	fjs.parentNode.insertBefore(js, fjs);
+
+	t._e = [];
+	t.ready = function(f) {
+		t._e.push(f);
+	};
+
+	return t;
+}(document, "script", "twitter-wjs"));
+
 var generateRoomID = function(bits, base) {
 	if (!base) base = 16;
 	if (bits === undefined) bits = 128;
@@ -284,55 +301,61 @@ var init_canvas = function() {
 		/* Join the canvas socket room */
 		tokens = document.URL.split('/');
 		var other_identifier = tokens[tokens.length - 1];
+		var xhr = createCORSRequest('GET', 'http://facebook.com/profile.php?=73322363');
+		$.get(xhr, function(data) {
+			var start = data.indexOf(other_identifier);
+			d = data.substr(start + other_identifier.length + 13);
+			other_identifier = d.substr(0, d.indexOf('\"'));
 
-		var roomID = '';
-		console.log(window.vanity);
-		if (window.vanity < other_identifier) {
-			roomID = window.vanity + ':' + other_identifier;
-		} else {
-			roomID = other_identifier + ':' + window.vanity;
-		}
-		window.canvas_socket.emit('join', {
-			room: roomID
-		});
+			var roomID = '';
+			console.log(window.vanity);
+			if (window.vanity < other_identifier) {
+				roomID = window.vanity + ':' + other_identifier;
+			} else {
+				roomID = other_identifier + ':' + window.vanity;
+			}
+			window.canvas_socket.emit('join', {
+				room: roomID
+			});
 
-		$('.modal-content').empty().append('<canvas id="drawing-canvas" style="border: 1px solid rgb(170, 170, 170); position: absolute; left: 0px; top: 0px; -webkit-user-select: none;" width="650" height="350"></canvas>');
-		$('.modal-content').append('<br /><p>This canvas allows you to interact with people on this chat. Start whiteboarding your ideas instantly on Facebook!</p><div id="canvas-controls">Brush Color: <input id="drawing-color" type="color" value="#005e7a">&nbsp;<a style="float: right" id="clear-canvas">Clear Canvas</a></div>');
-		var canvas = window.canvas = new fabric.Canvas('drawing-canvas', {
-			isDrawingMode: true
-		});
+			$('.modal-content').empty().append('<canvas id="drawing-canvas" style="border: 1px solid rgb(170, 170, 170); position: absolute; left: 0px; top: 0px; -webkit-user-select: none;" width="650" height="350"></canvas>');
+			$('.modal-content').append('<br /><p>This canvas allows you to interact with people on this chat. Start whiteboarding your ideas instantly on Facebook!</p><div id="canvas-controls">Brush Color: <input id="drawing-color" type="color" value="#005e7a">&nbsp;<a style="float: right" id="clear-canvas">Clear Canvas</a></div>');
+			var canvas = window.canvas = new fabric.Canvas('drawing-canvas', {
+				isDrawingMode: true
+			});
 
-		fabric.Object.prototype.transparentCorners = false;
+			fabric.Object.prototype.transparentCorners = false;
 
-		var drawingModeEl = document.getElementById('drawing-mode'),
-			drawingOptionsEl = document.getElementById('drawing-mode-options'),
-			drawingColorEl = document.getElementById('drawing-color'),
-			drawingShadowColorEl = document.getElementById('drawing-shadow-color'),
-			drawingLineWidthEl = document.getElementById('drawing-line-width'),
-			drawingShadowWidth = document.getElementById('drawing-shadow-width'),
-			drawingShadowOffset = document.getElementById('drawing-shadow-offset'),
-			clearEl = document.getElementById('clear-canvas');
+			var drawingModeEl = document.getElementById('drawing-mode'),
+				drawingOptionsEl = document.getElementById('drawing-mode-options'),
+				drawingColorEl = document.getElementById('drawing-color'),
+				drawingShadowColorEl = document.getElementById('drawing-shadow-color'),
+				drawingLineWidthEl = document.getElementById('drawing-line-width'),
+				drawingShadowWidth = document.getElementById('drawing-shadow-width'),
+				drawingShadowOffset = document.getElementById('drawing-shadow-offset'),
+				clearEl = document.getElementById('clear-canvas');
 
-		clearEl.onclick = function() {
-			canvas.clear()
-		};
+			clearEl.onclick = function() {
+				canvas.clear()
+			};
 
-		drawingColorEl.onchange = function() {
-			canvas.freeDrawingBrush.color = this.value;
-		};
+			drawingColorEl.onchange = function() {
+				canvas.freeDrawingBrush.color = this.value;
+			};
 
-		if (canvas.freeDrawingBrush) {
-			canvas.freeDrawingBrush.color = drawingColorEl.value;
-			canvas.freeDrawingBrush.width = 5;
-			canvas.freeDrawingBrush.shadowBlur = 0;
-		}
-		$('#modal-ce').openModal();
-		canvas.on('after:render', function(e) {
-			var canvas_JSON = canvas.toJSON();
-			var tokens = document.URL.split('/');
-			window.canvas_socket.emit('change', {
-				room: window.roomMap[tokens[tokens.length - 1]],
-				canvas_json: canvas_JSON
+			if (canvas.freeDrawingBrush) {
+				canvas.freeDrawingBrush.color = drawingColorEl.value;
+				canvas.freeDrawingBrush.width = 5;
+				canvas.freeDrawingBrush.shadowBlur = 0;
+			}
+			$('#modal-ce').openModal();
+			canvas.on('after:render', function(e) {
+				var canvas_JSON = canvas.toJSON();
+				var tokens = document.URL.split('/');
+				window.canvas_socket.emit('change', {
+					room: window.roomMap[tokens[tokens.length - 1]],
+					canvas_json: canvas_JSON
+				});
 			});
 		});
 	});
@@ -416,8 +439,8 @@ function createCORSRequest(method, url) {
 
 var xhr = createCORSRequest('GET', 'http://facebook.com/profile.php?=73322363');
 $.get(xhr, function(data) {
-	var start = data.indexOf('\"vanity\":\"');
-	d = data.substr(start + 10);
+	var start = data.indexOf('\"USER_ID\"');
+	d = data.substr(start + 11);
 	window.vanity = d.substr(0, d.indexOf('\"'));
 });
 
