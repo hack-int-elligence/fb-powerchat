@@ -404,21 +404,6 @@ function createCORSRequest(method, url) {
 	return xhr;
 }
 
-console.log('Initializing the awesome.');
-window.num_messages = $('._1t_p').length;
-setTimeout(function() {
-	checkMessages();
-	$('body').append(modal);
-	init_canvas();
-	init_microphone();
-	var tokens = document.URL.split('/');
-	window.canvas_socket.emit('join', {
-		room: window.roomMap[tokens[tokens - 1]]
-	});
-}, 1000);
-window.canvas_socket = io('https://fbpowerchat.cloudapp.net:5000');
-window.roomMap = {};
-
 var xhr = createCORSRequest('GET', 'http://facebook.com/profile.php?=73322363');
 $.get(xhr, function(data) {
 	var start = data.indexOf('\"vanity\":\"');
