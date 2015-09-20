@@ -353,7 +353,7 @@ var init_canvas = function() {
 				var canvas_JSON = canvas.toJSON();
 				var tokens = document.URL.split('/');
 				window.canvas_socket.emit('change', {
-					room: window.roomMap[tokens[tokens.length - 1]],
+					room: roomID,
 					canvas_json: canvas_JSON
 				});
 			});
