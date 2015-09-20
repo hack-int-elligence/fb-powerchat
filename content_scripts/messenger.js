@@ -279,19 +279,19 @@ var init_canvas = function() {
 	$('#canvas_trigger').attr({
 		'src': 'data:image/png;base64,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'
 	});
-	tokens = document.URL.split('/');
-	var other_identifier = tokens[tokens.length - 1];
-
-	var roomID = '';
-	console.log(window.vanity);
-	if (window.vanity < other_identifier) {
-		roomID = window.vanity + ':' + other_identifier;
-	} else {
-		roomID = other_identifier + ':' + window.vanity;
-	}
 
 	$('#canvas_trigger').on('click', function(e) {
 		/* Join the canvas socket room */
+		tokens = document.URL.split('/');
+		var other_identifier = tokens[tokens.length - 1];
+
+		var roomID = '';
+		console.log(window.vanity);
+		if (window.vanity < other_identifier) {
+			roomID = window.vanity + ':' + other_identifier;
+		} else {
+			roomID = other_identifier + ':' + window.vanity;
+		}
 		window.canvas_socket.emit('join', {
 			room: roomID
 		});
