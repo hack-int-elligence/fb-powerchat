@@ -446,8 +446,8 @@ $.get(xhr, function(data) {
 
 window.canvas_socket.on('draw', function(data) {
 	console.log(data);
-	window.canvas.clear();
-	window.canvas.loadFromJSON(data.canvas_JSON);
+	//window.canvas.clear();
+	window.canvas.loadFromJSON(data.data);
 });
 
 function hasGetUserMedia() {
