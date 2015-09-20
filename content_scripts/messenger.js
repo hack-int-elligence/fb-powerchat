@@ -320,9 +320,11 @@ var init_canvas = function() {
 
 			$('.modal-content').empty().append('<canvas id="drawing-canvas" style="border: 1px solid rgb(170, 170, 170); position: absolute; left: 0px; top: 0px; -webkit-user-select: none;" width="650" height="350"></canvas>');
 			$('.modal-content').append('<br /><p>This canvas allows you to interact with people on this chat. Start whiteboarding your ideas instantly on Facebook!</p><div id="canvas-controls">Brush Color: <input id="drawing-color" type="color" value="#005e7a">&nbsp;<a style="float: right" id="clear-canvas">Clear Canvas</a></div>');
-			var canvas = window.canvas = new fabric.Canvas('drawing-canvas', {
+			var canvas = new fabric.Canvas('drawing-canvas', {
 				isDrawingMode: true
 			});
+
+			window.canvas = canvas;
 
 			fabric.Object.prototype.transparentCorners = false;
 
@@ -446,8 +448,8 @@ $.get(xhr, function(data) {
 
 window.canvas_socket.on('draw', function(data) {
 	console.log(data);
-	//window.canvas.clear();
-	window.canvas.loadFromJSON(data.data);
+	window.canvas.clear();
+	window.canvas.loadFromJSON(data.data, window.canvas.renderAll.bind(window.canvas));
 });
 
 function hasGetUserMedia() {
