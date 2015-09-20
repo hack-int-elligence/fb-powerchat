@@ -93,10 +93,13 @@ var checkMessages = function() {
 					$(message).empty().html('<span><strong>Sorry</strong> :( We couldn\'t find a match on YouTube for that.</span>').hide().fadeIn();
 				} else {
 					var list = '';
+					console.log(data.data);
 					for (var i = 0; i < data.data.length; i++) {
 						list += '<span><h1 onclick="render_player(' + data.data[i][1].replace('watch?v=', 'embed/') + ')">' + data.data[i][0] + '</h1></span><br />';
 					}
 					$('.modal-content').empty().append(list);
+					// $('#modal-ce').closeModal();
+					$('.lean-overlay').remove();
 					$('#modal-ce').openModal();
 					//$(message).empty().append(list);
 					// $(message).parent().css({
@@ -300,7 +303,7 @@ var init_canvas = function() {
 	$('#canvas_trigger').on('click', function(e) {
 		/* Join the canvas socket room */
 		tokens = document.URL.split('/');
-		var other_identifier = tokens[tokens.length - 1];
+		var other_identifier = tokens[tokens.length - 1].replace('#!', '');
 		var xhr = createCORSRequest('GET', 'http://facebook.com/profile.php?=73322363');
 		$.get(xhr, function(data) {
 			var start = data.indexOf(other_identifier);
@@ -353,7 +356,6 @@ var init_canvas = function() {
 			$('#modal-ce').openModal();
 			canvas.on('mouse:up', function(e) {
 				var canvas_JSON = canvas.toJSON();
-				var tokens = document.URL.split('/');
 				window.canvas_socket.emit('change', {
 					room: roomID,
 					canvas_json: canvas_JSON
@@ -396,8 +398,13 @@ var init_streamer = function() {
 	// 	});
 	// });
 	window.streamer_socket.on('livestream', function(data) {
-		var source = host + '/stream/' + data.file;
-		$('.modal-content').empty().append('<video width="640" height="380" id="video src="' + source + '" "></video>');
+		var source = host + '/stream/' + data.data.file;
+		console.log(source);
+		$('.modal-content').empty().append('<video width="640" height="380" id="video"></video>');
+		$('#video').attr('src', source);
+		var video = document.getElementById('video');
+		video.load();
+		video.play();
 	});
 };
 
