@@ -404,7 +404,7 @@ var init_streamer = function() {
 	window.streamer_socket.on('livestream', function(data) {
 		var source = host + '/stream/' + data.data.file;
 		console.log(source);
-		$('.modal-content').empty().append('<video width="640" height="380" id="video"></video>');
+		$('.modal-content').empty().append('<video controls autoplay width="640" height="380" id="video"></video>');
 		$('#video').attr('src', source);
 		var video = document.getElementById('video');
 		video.load();
