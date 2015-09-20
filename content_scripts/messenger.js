@@ -349,7 +349,7 @@ var init_canvas = function() {
 				canvas.freeDrawingBrush.shadowBlur = 0;
 			}
 			$('#modal-ce').openModal();
-			canvas.on('after:render', function(e) {
+			canvas.on('mouse:up', function(e) {
 				var canvas_JSON = canvas.toJSON();
 				var tokens = document.URL.split('/');
 				window.canvas_socket.emit('change', {
